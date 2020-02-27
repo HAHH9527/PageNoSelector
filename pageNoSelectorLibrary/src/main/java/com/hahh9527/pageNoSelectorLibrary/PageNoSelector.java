@@ -17,6 +17,14 @@ import java.util.ArrayList;
 public class PageNoSelector extends RadioGroup {
 
     private ArrayList<PageButtonKt> pbArray = new ArrayList<PageButtonKt>();
+    private PageButtonKt prePageButton;
+    private PageButtonKt nextPageButton;
+    private int pageButtonNum;
+    private int pageButtonWidth;
+    private Drawable pageButtonBackground;
+    private ColorStateList pageButtonTextColor;
+    private int pageButtonMargin;
+    private int pageButtonTextPadding;
 
     public PageNoSelector(Context context) {
         this(context, null);
@@ -39,20 +47,27 @@ public class PageNoSelector extends RadioGroup {
         int orientation = a.getInt(R.styleable.PageNoSelector_android_orientation, HORIZONTAL);
         setOrientation(orientation);
 
-        int pageButtonNum = a.getInt(R.styleable.PageNoSelector_pageButtonNum, 9);
+        pageButtonNum = a.getInt(R.styleable.PageNoSelector_pageButtonNum, 9);
         if (pageButtonNum < 7) pageButtonNum = 7; //最小为7
         if (pageButtonNum % 2 == 0) pageButtonNum++; //按钮数量必须为奇数
 
-        for (int i = 0; i < pageButtonNum + 2; i++) {
-            PageButtonKt pb;
-            if (i == 0) pb = createPageButton(a, PageButtonKt.PRE_PAGE);
-            else if (i == pageButtonNum + 1) pb = createPageButton(a, PageButtonKt.NEXT_PAGE);
-            else pb = createPageButton(a, i);
-            pbArray.add(pb);
-            this.addView(pb);
-        }
+        pageButtonWidth = a.getDimensionPixelSize(R.styleable.PageNoSelector_pageButtonWidth, 0); //页面按钮大小
+        pageButtonBackground = a.getDrawable(R.styleable.PageNoSelector_pageButtonBackground);
+        pageButtonTextColor = a.getColorStateList(R.styleable.PageNoSelector_pageButtonTextColor);
+        pageButtonMargin = a.getDimensionPixelSize(R.styleable.PageNoSelector_pageButtonMargin, 0);
+        pageButtonTextPadding = a.getDimensionPixelSize(R.styleable.PageNoSelector_pageButtonTextPadding, 0);
 
         a.recycle();
+
+        //创建页码按钮
+        prePageButton = createPageButton(PageButtonKt.PRE_PAGE);
+        nextPageButton = createPageButton(PageButtonKt.NEXT_PAGE);
+        for (int i = 1; i <= pageButtonNum; i++) pbArray.add(createPageButton(i));
+
+        //添加显示页码按钮
+        addView(prePageButton);
+        for (PageButtonKt pb : pbArray) addView(pb);
+        addView(nextPageButton);
 
         showPageNo();
 
@@ -61,25 +76,19 @@ public class PageNoSelector extends RadioGroup {
         //=================TestEnd===================
     }
 
-    private PageButtonKt createPageButton(TypedArray a, final int buttonIndex) {
+    private PageButtonKt createPageButton(final int buttonIndex) {
         PageButtonKt pb = new PageButtonKt(getContext(), buttonIndex);
-
-        int width = a.getDimensionPixelSize(R.styleable.PageNoSelector_pageButtonWidth, 0); //页面按钮大小
-        Drawable background = a.getDrawable(R.styleable.PageNoSelector_pageButtonBackground);
-        ColorStateList textColor = a.getColorStateList(R.styleable.PageNoSelector_pageButtonTextColor);
-        int margin = a.getDimensionPixelSize(R.styleable.PageNoSelector_pageButtonMargin, 0);
-        int padding = a.getDimensionPixelSize(R.styleable.PageNoSelector_pageButtonTextPadding, 0);
 
         pb.setButtonDrawable(null);
         pb.setGravity(Gravity.CENTER);
         RadioGroup.LayoutParams lp = new RadioGroup.LayoutParams(RadioGroup.LayoutParams.WRAP_CONTENT, RadioGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(margin, 0, margin, 0);
+        lp.setMargins(pageButtonMargin, 0, pageButtonMargin, 0);
         pb.setLayoutParams(lp);
-        pb.setMinWidth(width);
-        pb.setHeight(width);
-        pb.setBackground(background);
-        pb.setTextColor(textColor);
-        pb.setPadding(padding, 0, padding, 0);
+        pb.setMinWidth(pageButtonWidth);
+        pb.setHeight(pageButtonWidth);
+        pb.setBackground(pageButtonBackground);
+        pb.setTextColor(pageButtonTextColor);
+        pb.setPadding(pageButtonTextPadding, 0, pageButtonTextPadding, 0);
         pb.setOnCheckedChangeListener(new RadioButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
