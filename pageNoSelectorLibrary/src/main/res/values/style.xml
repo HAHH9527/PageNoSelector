@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!--        <item name="defaultStyleAttr">@style/DefaultStyleInAppTheme</item>-->
+        <!--        <item name="defaultPageRadioButtonStyleAttr">@style/DefaultPageRadioButtonStyle</item>-->
+        <item name="defaultPageNoSelectorStyle">@style/DefaultPageNoSelectorStyle</item>
+    </style>
+
+    <!--    <style name="DefaultStyleInAppTheme">-->
+    <!--        <item name="firstAttr">firstAttr from theme style</item>-->
+    <!--        <item name="secondAttr">secondAttr from theme style</item>-->
+    <!--        <item name="thirdAttr">thirdAttr from theme style</item>-->
+    <!--    </style>-->
+
+    <!--    <style name="DefaultStyleRes">-->
+    <!--        <item name="firstAttr">firstAttr from style res</item>-->
+    <!--        <item name="secondAttr">secondAttr from style res</item>-->
+    <!--        <item name="thirdAttr">thirdAttr from style res</item>-->
+    <!--        <item name="fourthAttr">fourthAttr from style res</item>-->
+    <!--    </style>-->
+
+    <!--    <style name="LayoutStyle">-->
+    <!--        <item name="firstAttr">firstAttr from layout style</item>-->
+    <!--        <item name="secondAttr">secondAttr from layout style</item>-->
+    <!--    </style>-->
+
+<!--    <style name="DefaultPageRadioButtonStyle">-->
+<!--        <item name="android:layout_width">wrap_content</item>-->
+<!--        <item name="android:minWidth">50dp</item>-->
+<!--        <item name="android:layout_height">50dp</item>-->
+<!--        <item name="android:background">@drawable/page_no_background</item>-->
+<!--        <item name="android:textColor">@color/page_no_text_color</item>-->
+<!--        <item name="android:textSize">18sp</item>-->
+<!--        <item name="android:layout_margin">2dp</item>-->
+<!--        <item name="android:button">@null</item>-->
+<!--        <item name="android:gravity">center</item>-->
+<!--    </style>-->
+
+    <style name="DefaultPageNoSelectorStyle">
+        <item name="pageButtonWidth">30dp</item>
+        <item name="pageButtonMargin">1dp</item>
+        <item name="pageButtonBackground">@drawable/page_no_background</item>
+        <item name="pageButtonTextColor">@color/page_no_text_color</item>
+        <item name="pageButtonNum">9</item>
+        <item name="pageButtonTextPadding">5dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+</resources>
