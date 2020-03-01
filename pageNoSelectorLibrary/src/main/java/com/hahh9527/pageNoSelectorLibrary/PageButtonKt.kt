@@ -25,47 +25,64 @@
 package com.hahh9527.pageNoSelectorLibrary
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import androidx.appcompat.widget.AppCompatRadioButton
+import androidx.annotation.ColorInt
 
 class PageButtonKt(
     context: Context,
-    buttonIndex: Int,
+    buttonType: PAGE_BUTTON_TYPE = PAGE_BUTTON_TYPE.PAGE_NO,
     attrs: AttributeSet? = null
-) : AppCompatRadioButton(context, attrs) {
+) : androidx.appcompat.widget.AppCompatTextView(context, attrs) {
+
+    constructor(context: Context, buttonType: PAGE_BUTTON_TYPE = PAGE_BUTTON_TYPE.PAGE_NO) : this(
+        context,
+        buttonType,
+        null
+    )
 
     companion object {
-        const val PRE_PAGE = -1
-        const val NEXT_PAGE = -2
+//        const val TYPE.PRE_PAGE = -1
+//        const val TYPE.NEXT_PAGE = -2
+//        const val TYPE.PAGE_NO = 0
     }
 
-    var buttonIndex = 0
-        private set
+    var buttonType = PAGE_BUTTON_TYPE.PAGE_NO
+        private set(value) {
+            field = value
+            when (buttonType) {
+                PAGE_BUTTON_TYPE.PRE_PAGE -> text = "<"
+                PAGE_BUTTON_TYPE.NEXT_PAGE -> text = ">"
+            }
+        }
+
+    var pageNo = 0
+        set(value) {
+            if (buttonType == PAGE_BUTTON_TYPE.PRE_PAGE || buttonType == PAGE_BUTTON_TYPE.NEXT_PAGE) return
+            field = value
+            text = "$field"
+        }
 
     init {
-        this.buttonIndex = buttonIndex
-        text = when (buttonIndex) {
-            PRE_PAGE -> "<"
-            NEXT_PAGE -> ">"
-            else -> ""
+        this.buttonType = buttonType
+        when (buttonType) {
+            PAGE_BUTTON_TYPE.PRE_PAGE -> text = "<"
+            PAGE_BUTTON_TYPE.NEXT_PAGE -> text = ">"
+            else -> {
+//                setOnClickListener {
+//                    isChecked = true
+//                }
+            }
         }
-        setOnClickListener { isChecked = true }
     }
 
-    constructor(context: Context, buttonIndex: Int) : this(context, buttonIndex, null)
+    fun setStyle(background: Drawable? = null, @ColorInt textColor: Int? = null) {
+        background?.let { this.background = it }
+        textColor?.let { setTextColor(it) }
+    }
 
-//    constructor(context: Context, buttonIndex: Int, attrs: AttributeSet? = null) : this(
-//        context, buttonIndex, attrs, 0
-//    )
+}
 
-//    constructor(
-//        context: Context, buttonIndex: Int, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-//    ) : this(context, buttonIndex, attrs, defStyleAttr, 0)
-
-//    constructor(
-//        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0, defStyleRes: Int = 0
-//    ) : super(context, attrs, defStyleAttr, defStyleRes) {
-//
-//    }
-
+enum class PAGE_BUTTON_TYPE {
+    PRE_PAGE, NEXT_PAGE, PAGE_NO
 }

@@ -6,9 +6,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.hahh9527.pageNoSelectorLibrary.PageNoSelector
+    <com.hahh9527.pageNoSelectorLibrary.PageNoSelectorKt
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:pageButtonNum="15" />
+        android:orientation="horizontal" />
 
 </LinearLayout>

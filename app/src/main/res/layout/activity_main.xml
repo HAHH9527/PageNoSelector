@@ -6,11 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
-    <com.hahh9527.pageNoSelectorLibrary.PageNoSelector
-        android:layout_width="wrap_content"
+    <com.hahh9527.pageNoSelectorLibrary.PageNoSelectorKt
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:pageButtonNum="9" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

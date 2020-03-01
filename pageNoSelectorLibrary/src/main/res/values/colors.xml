@@ -29,4 +29,7 @@
     <color name="gray">#FF666666</color>
     <color name="orange">#FFFF4401</color>
 
+    <color name="page_no_text_color_selected">@color/white</color>
+    <color name="page_no_text_color_unselected">@color/gray</color>
+
 </resources>

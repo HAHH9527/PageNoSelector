@@ -23,32 +23,27 @@
   -->
 
 <resources>
-    <!--    <declare-styleable name="PageNoSelectorKt">-->
-    <!--        <attr name="showPageNoCount" format="integer"/>-->
-    <!--    </declare-styleable>-->
-
-    <!--    <declare-styleable name="PageButton">-->
-    <!--        <attr name="pageButtonWidth" format="dimension" />-->
-    <!--        <attr name="pageButtonSelected" format="boolean" />-->
-    <!--    </declare-styleable>-->
-    <!--    <attr name="defaultPageRadioButtonStyleAttr" format="reference" />-->
-
-
-    <declare-styleable name="PageNoSelector">
+    <declare-styleable name="PageNoSelectorKt">
+        <!--按钮数量-->
+        <attr name="pageButtonNum" format="integer" />
+        <!--页总数-->
+        <attr name="pageCount" format="integer" />
+        <!--按钮背景-->
+        <attr name="pageButtonBackgroundSelected" format="reference" />
+        <attr name="pageButtonBackgroundUnselected" format="reference" />
+        <!--按钮文字颜色-->
+        <attr name="pageButtonTextColorSelected" format="color" />
+        <attr name="pageButtonTextColorUnselected" format="color" />
         <!--按钮长宽-->
         <attr name="pageButtonWidth" format="dimension" />
         <!--按钮间隔-->
         <attr name="pageButtonMargin" format="dimension" />
-        <!--按钮背景-->
-        <attr name="pageButtonBackground" format="reference" />
-        <!--按钮文字颜色-->
-        <attr name="pageButtonTextColor" format="color" />
-        <!--按钮数量-->
-        <attr name="pageButtonNum" format="integer" />
         <!--按钮内填充边距-->
         <attr name="pageButtonTextPadding" format="dimension" />
-        <attr name="android:orientation" />
+        <!--        <attr name="android:orientation" />-->
     </declare-styleable>
-    <attr name="defaultPageNoSelectorStyle" format="reference" />
+
+    <!--默认样式-->
+    <attr name="defaultPageNoSelectorKtStyle" format="reference" />
 
 </resources>
