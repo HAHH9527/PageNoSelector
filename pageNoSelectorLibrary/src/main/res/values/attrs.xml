@@ -40,7 +40,8 @@
         <attr name="pageButtonMargin" format="dimension" />
         <!--按钮内填充边距-->
         <attr name="pageButtonTextPadding" format="dimension" />
-        <!--        <attr name="android:orientation" />-->
+        <!--按钮水平排布-->
+        <attr name="pageButtonIsHorizontal" format="boolean" />
     </declare-styleable>
 
     <!--默认样式-->

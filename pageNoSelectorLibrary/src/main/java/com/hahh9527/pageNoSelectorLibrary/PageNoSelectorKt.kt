@@ -32,6 +32,8 @@ import android.view.Gravity
 import android.widget.LinearLayout
 import androidx.annotation.ColorInt
 import kotlin.collections.ArrayList
+import com.hahh9527.pageNoSelectorLibrary.PageButtonKt.PAGE_BUTTON_TYPE
+import com.hahh9527.pageNoSelectorLibrary.PageButtonKt.PAGE_BUTTON_STATE
 
 class PageNoSelectorKt : LinearLayout {
 
@@ -67,19 +69,18 @@ class PageNoSelectorKt : LinearLayout {
     lateinit var prePageButton: PageButtonKt
     lateinit var nextPageButton: PageButtonKt
 
-    private var selectorPageNo = 1
+    private var selectedPageNo = 1
+    private var selectedPageNoIndex = 0
 
     //==================constructor begin==================
     constructor(context: Context) : this(context, null)
 
     constructor(context: Context, attrs: AttributeSet?) : this(
-        context,
-        null,
-        R.attr.defaultPageNoSelectorKtStyle
+        context, attrs, R.attr.defaultPageNoSelectorKtStyle
     )
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(
-        context, null, defStyleAttr, R.style.DefaultPageNoSelectorKtStyle
+        context, attrs, defStyleAttr, R.style.DefaultPageNoSelectorKtStyle
     )
 
     constructor(
@@ -92,6 +93,7 @@ class PageNoSelectorKt : LinearLayout {
         a.recycle()
 
         loadButton()
+        updateSelectedPageNo(1)
     }
     //===================constructor end===================
 
@@ -99,10 +101,7 @@ class PageNoSelectorKt : LinearLayout {
      * 加载资源
      */
     private fun initAttrs(a: TypedArray) {
-        R.styleable.LinearConstraintLayout_android_orientation
-        orientation =
-            a.getInt(R.styleable.LinearConstraintLayout_android_orientation, HORIZONTAL)
-        pageButtonNum = a.getInt(R.styleable.PageNoSelectorKt_pageButtonNum, 9).run {
+        pageButtonNum = a.getInt(R.styleable.PageNoSelectorKt_pageButtonNum, 0).run {
             when {
                 //最小为7
                 this < 7 -> return@run 7
@@ -158,29 +157,99 @@ class PageNoSelectorKt : LinearLayout {
         if (buttonType == PAGE_BUTTON_TYPE.PAGE_NO) {
             pb.setOnClickListener { v ->
                 val pageNo = (v as PageButtonKt).pageNo
-                updateSelectorPageNo(pageNo)
+                updateSelectedPageNo(pageNo)
             }
         }
         return pb
     }
 
-    private fun updateSelectorPageNo(selectorPageNo: Int) {
-//        val afterSelectorPageNoIndex = selectorPageNoIndex
-        val selectorPageButtonIndex = pageButtonNum / 2
-        val sideNum = selectorPageButtonIndex - 2
-        if (pageButtonNum < 1) return
-        val selectorPageButton = pageNoButtonArray[selectorPageButtonIndex]
-        selectorPageButton.pageNo = selectorPageNo
-        //        selectorPageButton.setChecked(true);
-        //        selectorPageButton.checkThisButton();
-        pageNoButtonArray[0].pageNo = 1
-        //从中间选中的页码往两边显示
-        for (i in 1..sideNum) {
-            pageNoButtonArray[selectorPageButtonIndex - i].pageNo = selectorPageNo - i
-            pageNoButtonArray[selectorPageButtonIndex + i].pageNo = selectorPageNo + i
+    private fun updateSelectedPageNo(selectedPageNo: Int) {
+        // TODO 最大页码小于按钮数情况还未做
+        val midIndex = pageButtonNum / 2
+
+        this.selectedPageNo = selectedPageNo
+
+        val afterSelectedPageNoIndex = this.selectedPageNoIndex
+        var hideBeforePageNo = false
+        var hideAfterPageNO = false
+
+        selectedPageNoIndex = when {
+            //不需要前省略 但 需要后省略
+            selectedPageNo <= 1 + midIndex -> {
+                hideBeforePageNo = false
+                hideAfterPageNO = true
+                selectedPageNo - 1
+            }
+            //不需要后省略 但 需要前省略
+            selectedPageNo >= pageCount - midIndex -> {
+                hideBeforePageNo = true
+                hideAfterPageNO = false
+                (pageButtonNum - 1) - (pageCount - selectedPageNo)
+            }
+            //前后省略都需要
+            else -> {
+                hideBeforePageNo = true
+                hideAfterPageNO = true
+                midIndex
+            }
         }
+
+        pageNoButtonArray[afterSelectedPageNoIndex].setState(PAGE_BUTTON_STATE.UNSELECTED)
+        pageNoButtonArray[selectedPageNoIndex].setState(PAGE_BUTTON_STATE.SELECTED)
+
+        pageNoButtonArray[0].pageNo = 1
         pageNoButtonArray[pageNoButtonArray.size - 1].pageNo = pageCount
+
+        pageNoButtonArray[1].apply {
+            pageNo = if (hideBeforePageNo) {
+                setState(PAGE_BUTTON_STATE.HIDE_MORE)
+                PAGE_BUTTON_STATE.valueOf("HIDE_MORE").value
+            } else {
+                setState(if (selectedPageNoIndex == 1) PAGE_BUTTON_STATE.SELECTED else PAGE_BUTTON_STATE.UNSELECTED)
+                2
+            }
+        }
+
+        pageNoButtonArray[pageNoButtonArray.size - 2].apply {
+            pageNo = if (hideAfterPageNO) {
+                setState(PAGE_BUTTON_STATE.HIDE_MORE)
+                PAGE_BUTTON_STATE.valueOf("HIDE_MORE").value
+            } else {
+                setState(if (selectedPageNoIndex == pageNoButtonArray.size - 2) PAGE_BUTTON_STATE.SELECTED else PAGE_BUTTON_STATE.UNSELECTED)
+                pageCount - 1
+            }
+        }
+
+        val midPageNo = when {
+            selectedPageNoIndex > midIndex -> pageCount - midIndex
+            selectedPageNoIndex < midIndex -> 1 + midIndex
+            else -> selectedPageNo
+        }
+
+        pageNoButtonArray[midIndex].pageNo = midPageNo
+        //从中间选中的页码往两边显示
+        for (i in 1..midIndex - 2) {
+            pageNoButtonArray[midIndex - i].pageNo = midPageNo - i
+            pageNoButtonArray[midIndex + i].pageNo = midPageNo + i
+        }
     }
 
+    private fun PageButtonKt.setState(state: PAGE_BUTTON_STATE) {
+        when (state) {
+            PAGE_BUTTON_STATE.UNSELECTED -> {
+                this.setStyle(pageButtonBackgroundUnSelected, pageButtonTextColorUnselected)
+                this.isClickable = true
+            }
+            PAGE_BUTTON_STATE.SELECTED -> {
+                this.setStyle(pageButtonBackgroundSelected, pageButtonTextColorSelected)
+                this.isClickable = false
+            }
+            PAGE_BUTTON_STATE.HIDE_MORE -> {
+                this.setStyle(null, pageButtonTextColorUnselected)
+                this.pageNo = -1
+                this.isClickable = false
+            }
+        }
+    }
 
 }

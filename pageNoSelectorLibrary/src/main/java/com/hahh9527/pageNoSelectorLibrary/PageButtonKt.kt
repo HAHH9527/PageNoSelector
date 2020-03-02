@@ -60,7 +60,12 @@ class PageButtonKt(
         set(value) {
             if (buttonType == PAGE_BUTTON_TYPE.PRE_PAGE || buttonType == PAGE_BUTTON_TYPE.NEXT_PAGE) return
             field = value
-            text = "$field"
+            text = if (field != PAGE_BUTTON_STATE.valueOf("HIDE_MORE").value) {
+                "$field"
+            } else {
+                "..."
+            }
+            setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
         }
 
     init {
@@ -76,13 +81,24 @@ class PageButtonKt(
         }
     }
 
-    fun setStyle(background: Drawable? = null, @ColorInt textColor: Int? = null) {
-        background?.let { this.background = it }
-        textColor?.let { setTextColor(it) }
+    fun setStyle(background: Drawable?, @ColorInt textColor: Int) {
+        this.background = background
+        setTextColor(textColor)
     }
 
+    enum class PAGE_BUTTON_TYPE {
+        PRE_PAGE, NEXT_PAGE, PAGE_NO
+    }
+
+    enum class PAGE_BUTTON_STATE(val value: Int) {
+        UNSELECTED(-1), SELECTED(-2), HIDE_MORE(-3)
+    }
 }
 
-enum class PAGE_BUTTON_TYPE {
-    PRE_PAGE, NEXT_PAGE, PAGE_NO
-}
+//enum class PAGE_BUTTON_TYPE {
+//    PRE_PAGE, NEXT_PAGE, PAGE_NO
+//}
+//
+//enum class PAGE_BUTTON_STATE(val value: Int) {
+//    UNSELECTED(-1), SELECTED(-2), HIDE_MORE(-3)
+//}
