@@ -29,6 +29,7 @@ import android.content.res.TypedArray
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.Gravity
+import android.view.View
 import android.widget.LinearLayout
 import androidx.annotation.ColorInt
 import kotlin.collections.ArrayList
@@ -72,11 +73,11 @@ class PageNoSelectorKt : LinearLayout {
     private var selectedPageNo = 1
     private var selectedPageNoIndex = 0
 
-    //=============回调 begin=============
+    //====================回调 begin====================
     var pageChangeCallBack: (pageNo: Int) -> Unit = {}
-    //==============回调 end==============
+    //=====================回调 end=====================
 
-    //==================constructor begin==================
+    //====================constructor begin====================
     constructor(context: Context) : this(context, null)
 
     constructor(context: Context, attrs: AttributeSet?) : this(
@@ -97,9 +98,9 @@ class PageNoSelectorKt : LinearLayout {
         a.recycle()
 
         loadButton()
-        updateSelectedPageNo(1)
+        updateSelectedPageNo(selectedPageNo)
     }
-    //===================constructor end===================
+    //=====================constructor end=====================
 
     /**
      * 加载资源
@@ -183,75 +184,99 @@ class PageNoSelectorKt : LinearLayout {
     }
 
     private fun updateSelectedPageNo(selectedPageNo: Int) {
-        // TODO 最大页码小于按钮数情况还未做
-        val midIndex = pageButtonNum / 2
+        if (selectedPageNo <= 0) return
 
-        this.selectedPageNo = selectedPageNo
-
-        val afterSelectedPageNoIndex = this.selectedPageNoIndex
-        var hideBeforePageNo = false
-        var hideAfterPageNO = false
-
-        selectedPageNoIndex = when {
-            //不需要前省略 但 需要后省略
-            selectedPageNo <= 1 + midIndex -> {
-                hideBeforePageNo = false
-                hideAfterPageNO = true
-                selectedPageNo - 1
+        if (pageCount <= pageButtonNum) {
+            //最大页码小于按钮数
+            this.selectedPageNo = selectedPageNo
+            selectedPageNoIndex = selectedPageNo - 1
+            for (i in 0 until pageNoButtonArray.size) {
+                if (i < pageCount) {
+                    pageNoButtonArray[i].apply {
+                        visibility = View.VISIBLE
+                        pageNo = i + 1
+                        setState(
+                            if (selectedPageNoIndex == i) PAGE_BUTTON_STATE.SELECTED
+                            else PAGE_BUTTON_STATE.UNSELECTED
+                        )
+                    }
+                } else {
+                    pageNoButtonArray[i].apply {
+                        visibility = View.GONE
+                        pageNo = 0
+                        setState(PAGE_BUTTON_STATE.UNSELECTED)
+                    }
+                }
             }
-            //不需要后省略 但 需要前省略
-            selectedPageNo >= pageCount - midIndex -> {
-                hideBeforePageNo = true
-                hideAfterPageNO = false
-                (pageButtonNum - 1) - (pageCount - selectedPageNo)
+        } else {
+            val midIndex = pageButtonNum / 2
+
+            this.selectedPageNo = selectedPageNo
+
+            val afterSelectedPageNoIndex = this.selectedPageNoIndex
+            var hideBeforePageNo = false
+            var hideAfterPageNO = false
+
+            selectedPageNoIndex = when {
+                //不需要前省略 但 需要后省略
+                selectedPageNo <= 1 + midIndex -> {
+                    hideBeforePageNo = false
+                    hideAfterPageNO = true
+                    selectedPageNo - 1
+                }
+                //不需要后省略 但 需要前省略
+                selectedPageNo >= pageCount - midIndex -> {
+                    hideBeforePageNo = true
+                    hideAfterPageNO = false
+                    (pageButtonNum - 1) - (pageCount - selectedPageNo)
+                }
+                //前后省略都需要
+                else -> {
+                    hideBeforePageNo = true
+                    hideAfterPageNO = true
+                    midIndex
+                }
             }
-            //前后省略都需要
-            else -> {
-                hideBeforePageNo = true
-                hideAfterPageNO = true
-                midIndex
+
+            pageNoButtonArray[afterSelectedPageNoIndex].setState(PAGE_BUTTON_STATE.UNSELECTED)
+            pageNoButtonArray[selectedPageNoIndex].setState(PAGE_BUTTON_STATE.SELECTED)
+
+            pageNoButtonArray[0].pageNo = 1
+            pageNoButtonArray[pageNoButtonArray.size - 1].pageNo = pageCount
+
+            pageNoButtonArray[1].apply {
+                pageNo = if (hideBeforePageNo) {
+                    setState(PAGE_BUTTON_STATE.HIDE_MORE)
+                    PAGE_BUTTON_STATE.valueOf("HIDE_MORE").value
+                } else {
+                    setState(if (selectedPageNoIndex == 1) PAGE_BUTTON_STATE.SELECTED else PAGE_BUTTON_STATE.UNSELECTED)
+                    2
+                }
+            }
+
+            pageNoButtonArray[pageNoButtonArray.size - 2].apply {
+                pageNo = if (hideAfterPageNO) {
+                    setState(PAGE_BUTTON_STATE.HIDE_MORE)
+                    PAGE_BUTTON_STATE.valueOf("HIDE_MORE").value
+                } else {
+                    setState(if (selectedPageNoIndex == pageNoButtonArray.size - 2) PAGE_BUTTON_STATE.SELECTED else PAGE_BUTTON_STATE.UNSELECTED)
+                    pageCount - 1
+                }
+            }
+
+            val midPageNo = when {
+                selectedPageNoIndex > midIndex -> pageCount - midIndex
+                selectedPageNoIndex < midIndex -> 1 + midIndex
+                else -> selectedPageNo
+            }
+
+            pageNoButtonArray[midIndex].pageNo = midPageNo
+            //从中间选中的页码往两边显示
+            for (i in 1..midIndex - 2) {
+                pageNoButtonArray[midIndex - i].pageNo = midPageNo - i
+                pageNoButtonArray[midIndex + i].pageNo = midPageNo + i
             }
         }
-
-        pageNoButtonArray[afterSelectedPageNoIndex].setState(PAGE_BUTTON_STATE.UNSELECTED)
-        pageNoButtonArray[selectedPageNoIndex].setState(PAGE_BUTTON_STATE.SELECTED)
-
-        pageNoButtonArray[0].pageNo = 1
-        pageNoButtonArray[pageNoButtonArray.size - 1].pageNo = pageCount
-
-        pageNoButtonArray[1].apply {
-            pageNo = if (hideBeforePageNo) {
-                setState(PAGE_BUTTON_STATE.HIDE_MORE)
-                PAGE_BUTTON_STATE.valueOf("HIDE_MORE").value
-            } else {
-                setState(if (selectedPageNoIndex == 1) PAGE_BUTTON_STATE.SELECTED else PAGE_BUTTON_STATE.UNSELECTED)
-                2
-            }
-        }
-
-        pageNoButtonArray[pageNoButtonArray.size - 2].apply {
-            pageNo = if (hideAfterPageNO) {
-                setState(PAGE_BUTTON_STATE.HIDE_MORE)
-                PAGE_BUTTON_STATE.valueOf("HIDE_MORE").value
-            } else {
-                setState(if (selectedPageNoIndex == pageNoButtonArray.size - 2) PAGE_BUTTON_STATE.SELECTED else PAGE_BUTTON_STATE.UNSELECTED)
-                pageCount - 1
-            }
-        }
-
-        val midPageNo = when {
-            selectedPageNoIndex > midIndex -> pageCount - midIndex
-            selectedPageNoIndex < midIndex -> 1 + midIndex
-            else -> selectedPageNo
-        }
-
-        pageNoButtonArray[midIndex].pageNo = midPageNo
-        //从中间选中的页码往两边显示
-        for (i in 1..midIndex - 2) {
-            pageNoButtonArray[midIndex - i].pageNo = midPageNo - i
-            pageNoButtonArray[midIndex + i].pageNo = midPageNo + i
-        }
-
         pageChangeCallBack.invoke(selectedPageNo)
     }
 
