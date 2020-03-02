@@ -72,6 +72,10 @@ class PageNoSelectorKt : LinearLayout {
     private var selectedPageNo = 1
     private var selectedPageNoIndex = 0
 
+    //=============回调 begin=============
+    var pageChangeCallBack: (pageNo: Int) -> Unit = {}
+    //==============回调 end==============
+
     //==================constructor begin==================
     constructor(context: Context) : this(context, null)
 
@@ -247,6 +251,8 @@ class PageNoSelectorKt : LinearLayout {
             pageNoButtonArray[midIndex - i].pageNo = midPageNo - i
             pageNoButtonArray[midIndex + i].pageNo = midPageNo + i
         }
+
+        pageChangeCallBack.invoke(selectedPageNo)
     }
 
     private fun PageButtonKt.setState(state: PAGE_BUTTON_STATE) {
