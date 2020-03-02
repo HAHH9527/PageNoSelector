@@ -145,19 +145,34 @@ class PageNoSelectorKt : LinearLayout {
     }
 
     private fun createPageButton(buttonType: PAGE_BUTTON_TYPE = PAGE_BUTTON_TYPE.PAGE_NO): PageButtonKt {
-        val pb = PageButtonKt(context, buttonType)
-        pb.gravity = Gravity.CENTER
-        val lp = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-        lp.setMargins(pageButtonMargin, 0, pageButtonMargin, 0)
-        pb.layoutParams = lp
-        pb.minWidth = pageButtonWidth
-        pb.minHeight = pageButtonWidth
-        pb.setStyle(pageButtonBackgroundUnSelected, pageButtonTextColorUnselected)
-        pb.setPadding(pageButtonTextPadding, 0, pageButtonTextPadding, 0)
-        if (buttonType == PAGE_BUTTON_TYPE.PAGE_NO) {
-            pb.setOnClickListener { v ->
-                val pageNo = (v as PageButtonKt).pageNo
-                updateSelectedPageNo(pageNo)
+        val pb = PageButtonKt(context, buttonType).apply {
+            gravity = Gravity.CENTER
+            val lp = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+            lp.setMargins(pageButtonMargin, 0, pageButtonMargin, 0)
+            layoutParams = lp
+            minWidth = pageButtonWidth
+            minHeight = pageButtonWidth
+            setStyle(pageButtonBackgroundUnSelected, pageButtonTextColorUnselected)
+            setPadding(pageButtonTextPadding, 0, pageButtonTextPadding, 0)
+        }
+        when (buttonType) {
+            PAGE_BUTTON_TYPE.PAGE_NO -> {
+                pb.setOnClickListener { v ->
+                    val pageNo = (v as PageButtonKt).pageNo
+                    updateSelectedPageNo(pageNo)
+                }
+            }
+            PAGE_BUTTON_TYPE.PRE_PAGE -> {
+                pb.setOnClickListener {
+                    if (selectedPageNo <= 1) return@setOnClickListener
+                    updateSelectedPageNo(selectedPageNo - 1)
+                }
+            }
+            PAGE_BUTTON_TYPE.NEXT_PAGE -> {
+                pb.setOnClickListener {
+                    if (selectedPageNo >= pageCount) return@setOnClickListener
+                    updateSelectedPageNo(selectedPageNo + 1)
+                }
             }
         }
         return pb
