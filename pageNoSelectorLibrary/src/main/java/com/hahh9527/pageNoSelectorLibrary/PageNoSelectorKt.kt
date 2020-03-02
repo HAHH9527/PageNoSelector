@@ -40,14 +40,19 @@ class PageNoSelectorKt : LinearLayout {
 
     private val pageNoButtonArray = ArrayList<PageButtonKt>()
 
+    /**
+     * 按钮数量最小为7,并一定为奇数,如是偶数则+1
+     */
     var pageButtonNum: Int = 0
-        private set
-
-    fun setPageButtonNum(value: Int) {
-        pageButtonNum = value
-        removeAllViews()
-        loadButton()
-    }
+        set(value) {
+            field = when {
+                //最小为7
+                value <= 7 -> 7
+                //按钮数量必须为奇数
+                value % 2 == 0 -> value + 1
+                else -> value
+            }
+        }
 
     var pageButtonBackgroundSelected: Drawable? = null
 
@@ -74,6 +79,9 @@ class PageNoSelectorKt : LinearLayout {
     private var selectedPageNoIndex = 0
 
     //====================回调 begin====================
+    /**
+     * 翻页回调
+     */
     var pageChangeCallBack: (pageNo: Int) -> Unit = {}
     //=====================回调 end=====================
 
@@ -98,23 +106,22 @@ class PageNoSelectorKt : LinearLayout {
         a.recycle()
 
         loadButton()
-        updateSelectedPageNo(selectedPageNo)
     }
     //=====================constructor end=====================
+
+    /**
+     * 重新加载显示界面
+     */
+    fun reloadView() {
+        removeAllViews()
+        loadButton()
+    }
 
     /**
      * 加载资源
      */
     private fun initAttrs(a: TypedArray) {
-        pageButtonNum = a.getInt(R.styleable.PageNoSelectorKt_pageButtonNum, 0).run {
-            when {
-                //最小为7
-                this < 7 -> return@run 7
-                //按钮数量必须为奇数
-                this % 2 == 0 -> return@run this + 1
-                else -> return@run this
-            }
-        }
+        pageButtonNum = a.getInt(R.styleable.PageNoSelectorKt_pageButtonNum, 0)
         pageButtonBackgroundSelected =
             a.getDrawable(R.styleable.PageNoSelectorKt_pageButtonBackgroundSelected)
         pageButtonBackgroundUnSelected =
@@ -133,6 +140,7 @@ class PageNoSelectorKt : LinearLayout {
 
     /**
      * 加载页码按钮
+     * 使用[createPageButton]创建按钮
      */
     private fun loadButton() {
         prePageButton = createPageButton(PAGE_BUTTON_TYPE.PRE_PAGE)
@@ -147,8 +155,15 @@ class PageNoSelectorKt : LinearLayout {
             addView(pb)
         }
         addView(nextPageButton)
+
+        updateSelectedPageNo(selectedPageNo)
     }
 
+    /**
+     * 创建按钮
+     *
+     * @param buttonType [PAGE_BUTTON_TYPE]
+     */
     private fun createPageButton(buttonType: PAGE_BUTTON_TYPE = PAGE_BUTTON_TYPE.PAGE_NO): PageButtonKt {
         val pb = PageButtonKt(context, buttonType).apply {
             gravity = Gravity.CENTER
@@ -183,6 +198,11 @@ class PageNoSelectorKt : LinearLayout {
         return pb
     }
 
+    /**
+     * 更新选中的页码按钮
+     *
+     * @param selectedPageNo 被选中的页码
+     */
     private fun updateSelectedPageNo(selectedPageNo: Int) {
         if (selectedPageNo <= 0) return
 
@@ -280,6 +300,11 @@ class PageNoSelectorKt : LinearLayout {
         pageChangeCallBack.invoke(selectedPageNo)
     }
 
+    /**
+     * 设置按钮状态
+     *
+     * @param state 不同的状态[PAGE_BUTTON_STATE]会产生不同的样式改变
+     */
     private fun PageButtonKt.setState(state: PAGE_BUTTON_STATE) {
         when (state) {
             PAGE_BUTTON_STATE.UNSELECTED -> {
