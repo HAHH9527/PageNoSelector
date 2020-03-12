@@ -43,8 +43,8 @@ class PageNoSelectorKt : LinearLayout {
     /**
      * 按钮数量最小为7,并一定为奇数,如是偶数则+1
      */
-    var pageButtonNum: Int = 0
-        set(value) {
+    var mPageButtonNum: Int = 0
+        private set(value) {
             field = when {
                 //最小为7
                 value <= 7 -> 7
@@ -53,6 +53,13 @@ class PageNoSelectorKt : LinearLayout {
                 else -> value
             }
         }
+
+    fun setPageButtonNum(int: Int) {
+        mPageButtonNum = int
+        selectedPageNo = 1
+        selectedPageNoIndex = 0
+        reloadView()
+    }
 
     var pageButtonBackgroundSelected: Drawable? = null
 
@@ -70,7 +77,15 @@ class PageNoSelectorKt : LinearLayout {
 
     var pageButtonTextPadding: Int = 0
 
-    var pageCount: Int = 0
+    var mPageCount: Int = 0
+        private set
+
+    fun setPageCount(int: Int) {
+        mPageCount = int
+        selectedPageNo = 1
+        selectedPageNoIndex = 0
+        reloadView()
+    }
 
     lateinit var prePageButton: PageButtonKt
     lateinit var nextPageButton: PageButtonKt
@@ -121,7 +136,7 @@ class PageNoSelectorKt : LinearLayout {
      * 加载资源
      */
     private fun initAttrs(a: TypedArray) {
-        pageButtonNum = a.getInt(R.styleable.PageNoSelectorKt_pageButtonNum, 0)
+        mPageButtonNum = a.getInt(R.styleable.PageNoSelectorKt_pageButtonNum, 0)
         pageButtonBackgroundSelected =
             a.getDrawable(R.styleable.PageNoSelectorKt_pageButtonBackgroundSelected)
         pageButtonBackgroundUnSelected =
@@ -135,7 +150,7 @@ class PageNoSelectorKt : LinearLayout {
         pageButtonMargin = a.getDimensionPixelSize(R.styleable.PageNoSelectorKt_pageButtonMargin, 0)
         pageButtonTextPadding =
             a.getDimensionPixelSize(R.styleable.PageNoSelectorKt_pageButtonTextPadding, 0)
-        pageCount = a.getInt(R.styleable.PageNoSelectorKt_pageCount, 0)
+        mPageCount = a.getInt(R.styleable.PageNoSelectorKt_pageCount, 0)
     }
 
     /**
@@ -145,8 +160,9 @@ class PageNoSelectorKt : LinearLayout {
     private fun loadButton() {
         prePageButton = createPageButton(PAGE_BUTTON_TYPE.PRE_PAGE)
         nextPageButton = createPageButton(PAGE_BUTTON_TYPE.NEXT_PAGE)
+        if (pageNoButtonArray.isNotEmpty()) pageNoButtonArray.clear()
         //创建页码按钮
-        for (i in 1..pageButtonNum) {
+        for (i in 1..mPageButtonNum) {
             pageNoButtonArray.add(createPageButton())
         }
         //添加显示页码按钮
@@ -190,7 +206,7 @@ class PageNoSelectorKt : LinearLayout {
             }
             PAGE_BUTTON_TYPE.NEXT_PAGE -> {
                 pb.setOnClickListener {
-                    if (selectedPageNo >= pageCount) return@setOnClickListener
+                    if (selectedPageNo >= mPageCount) return@setOnClickListener
                     updateSelectedPageNo(selectedPageNo + 1)
                 }
             }
@@ -206,12 +222,12 @@ class PageNoSelectorKt : LinearLayout {
     private fun updateSelectedPageNo(selectedPageNo: Int) {
         if (selectedPageNo <= 0) return
 
-        if (pageCount <= pageButtonNum) {
+        if (mPageCount <= mPageButtonNum) {
             //最大页码小于按钮数
             this.selectedPageNo = selectedPageNo
             selectedPageNoIndex = selectedPageNo - 1
             for (i in 0 until pageNoButtonArray.size) {
-                if (i < pageCount) {
+                if (i < mPageCount) {
                     pageNoButtonArray[i].apply {
                         visibility = View.VISIBLE
                         pageNo = i + 1
@@ -229,7 +245,7 @@ class PageNoSelectorKt : LinearLayout {
                 }
             }
         } else {
-            val midIndex = pageButtonNum / 2
+            val midIndex = mPageButtonNum / 2
 
             this.selectedPageNo = selectedPageNo
 
@@ -245,10 +261,10 @@ class PageNoSelectorKt : LinearLayout {
                     selectedPageNo - 1
                 }
                 //不需要后省略 但 需要前省略
-                selectedPageNo >= pageCount - midIndex -> {
+                selectedPageNo >= mPageCount - midIndex -> {
                     hideBeforePageNo = true
                     hideAfterPageNO = false
-                    (pageButtonNum - 1) - (pageCount - selectedPageNo)
+                    (mPageButtonNum - 1) - (mPageCount - selectedPageNo)
                 }
                 //前后省略都需要
                 else -> {
@@ -262,7 +278,7 @@ class PageNoSelectorKt : LinearLayout {
             pageNoButtonArray[selectedPageNoIndex].setState(PAGE_BUTTON_STATE.SELECTED)
 
             pageNoButtonArray[0].pageNo = 1
-            pageNoButtonArray[pageNoButtonArray.size - 1].pageNo = pageCount
+            pageNoButtonArray[pageNoButtonArray.size - 1].pageNo = mPageCount
 
             pageNoButtonArray[1].apply {
                 pageNo = if (hideBeforePageNo) {
@@ -280,12 +296,12 @@ class PageNoSelectorKt : LinearLayout {
                     PAGE_BUTTON_STATE.valueOf("HIDE_MORE").value
                 } else {
                     setState(if (selectedPageNoIndex == pageNoButtonArray.size - 2) PAGE_BUTTON_STATE.SELECTED else PAGE_BUTTON_STATE.UNSELECTED)
-                    pageCount - 1
+                    mPageCount - 1
                 }
             }
 
             val midPageNo = when {
-                selectedPageNoIndex > midIndex -> pageCount - midIndex
+                selectedPageNoIndex > midIndex -> mPageCount - midIndex
                 selectedPageNoIndex < midIndex -> 1 + midIndex
                 else -> selectedPageNo
             }
